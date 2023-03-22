@@ -4,6 +4,11 @@ import os
 import csv
 import unittest
 
+# Your names: Julio Berrocal Alvarez, Madison Jennings
+# Your student id: 14797142, 48980758
+# Your emails: juberroc@umich.edu , maddjenn@umich.edu
+# List who you have worked with on this project: Madison Jennings (maddjenn)
+
 
 # IMPORTANT NOTE:
 """
