@@ -215,14 +215,19 @@ def check_policy_numbers(data):
     ]
 
     """
-     invalid_policies = []
-    for listing in data:
-        if listing['license'] == 'Pending' or listing['license'] == 'Exempt':
+    pattern_1 = r"^20\d{2}-00\d{4}STR$"
+    pattern_2 = r"^STR-000\d{4}$"
+    invalid_policy = []
+    for tup in data:
+        if re.search(pattern_1, tup[3]) or re.search(pattern_2, tup[3]):
             continue
-        policy = listing['license']
-        if not re.match(r'^((20\d{2}-00\d{4}STR)|(STR-000\d{4}))$', policy):
-            invalid_policies.append(listing['id'])
-    return invalid_policies
+        elif tup[3] == "Pending":
+            continue
+        elif tup[3] == "Exempt":
+            continue
+        else:
+            invalid_policy.append(tup[2])
+    return invalid_policy
 
 
 def google_scholar_searcher(query):
@@ -243,13 +248,26 @@ def google_scholar_searcher(query):
     You do not need to write test cases for this question.
     """
     import requests
+  
+    
 
-    url = f"https://scholar.google.com/scholar?q={query}&start=0"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
+    titles = []
+
+    url = "https://scholar.google.com/scholar?q=" + query 
+    content = requests.get(url).text
+    soup = BeautifulSoup(content, "html.parser")
     title_tags = soup.find_all("h3", class_="gs_rt")
-    titles = [tag.text for tag in title_tags]
+    for tag in title_tags:
+        title = tag.text
+        if title.startswith("["):
+            title_list = title.split(']')
+            new_title = title_list[2].lstrip(' ')
+            titles.append(new_title)
+        else:
+            titles.append(title)
+            
     return titles
+
 
 
 class TestCases(unittest.TestCase):
@@ -371,9 +389,9 @@ if __name__ == '__main__':
 
     ### Below are pre-written ###
 
-    #database = get_detailed_listing_database("html_files/search_results.html")
-    #write_csv(database, "airbnb_dataset.csv")
-    #non_valid_airbnbs = check_policy_numbers(database)
+    database = get_detailed_listing_database("html_files/search_results.html")
+    write_csv(database, "airbnb_dataset.csv")
+    non_valid_airbnbs = check_policy_numbers(database)
     unittest.main(verbosity=2)
 
     ### Above are pre-written ###
