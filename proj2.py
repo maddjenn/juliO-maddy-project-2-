@@ -215,7 +215,14 @@ def check_policy_numbers(data):
     ]
 
     """
-    pass
+     invalid_policies = []
+    for listing in data:
+        if listing['license'] == 'Pending' or listing['license'] == 'Exempt':
+            continue
+        policy = listing['license']
+        if not re.match(r'^((20\d{2}-00\d{4}STR)|(STR-000\d{4}))$', policy):
+            invalid_policies.append(listing['id'])
+    return invalid_policies
 
 
 def google_scholar_searcher(query):
@@ -237,7 +244,12 @@ def google_scholar_searcher(query):
     """
     import requests
 
-    # YOUR ANSWER HERE
+    url = f"https://scholar.google.com/scholar?q={query}&start=0"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    title_tags = soup.find_all("h3", class_="gs_rt")
+    titles = [tag.text for tag in title_tags]
+    return titles
 
 
 class TestCases(unittest.TestCase):
@@ -340,11 +352,11 @@ class TestCases(unittest.TestCase):
         # check that the return value is a list
         self.assertEqual(type(invalid_listings), list)
         # check that there is exactly one element in the string
-
+        self.assertEqual(len(invalid_listings), 1)
         # check that the element in the list is a string
-
+        self.assertEqual(type(invalid_listings[0]), str)
         # check that the first element in the list is '16204265'
-        pass
+        self.assertEqual(invalid_listings[0], '16204265')
 
 
 if __name__ == '__main__':
